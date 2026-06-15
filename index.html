@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calculadora IMC + Plano Alimentar Pro</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Sora:wght@700;800&display=swap');
+
+  :root {
+    --green-dark: #0F4C35;
+    --green: #16A34A;
+    --green-light: #22C55E;
+    --mint: #DCFCE7;
+    --cream: #F9FAFB;
+    --navy: #0F172A;
+    --gray: #6B7280;
+    --gray-light: #E5E7EB;
+    --orange: #EA580C;
+    --yellow: #EAB308;
+    --red: #DC2626;
+    --white: #FFFFFF;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Inter', sans-serif; background: var(--cream); color: var(--navy); min-height: 100vh; }
+
+  /* HERO */
+  .hero {
+    background: linear-gradient(150deg, var(--green-dark) 0%, #1A5C3A 60%, #0F4C35 100%);
+    padding: 40px 20px 36px;
+    text-align: center;
+    color: white;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -50px; right: -50px;
+    width: 180px; height: 180px;
+    border-radius: 50%;
+    background: rgba(34,197,94,0.15);
+  }
+  .badge {
+    display: inline-block;
+    background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.3);
+    color: white;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 4px 14px;
+    border-radius: 20px;
+    margin-bottom: 14px;
+  }
+  .hero h1 {
+    font-family: 'Sora', sans-serif;
+    font-size: 26px;
+    line-height: 1.2;
+    margin-bottom: 10px;
+  }
+  .hero h1 span { color: #86EFAC; }
+  .hero p { font-size: 14px; color: rgba(255,255,255,0.75); max-width: 320px; margin: 0 auto; }
+
+  /* TABS */
+  .tabs {
+    display: flex;
+    background: white;
+    border-bottom: 1px solid var(--gray-light);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .tab {
+    flex: 1;
+    padding: 14px 8px;
+    text-align: center;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--gray);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+  }
+  .tab.active { color: var(--green); border-bottom-color: var(--green); }
+
+  /* CONTAINER */
+  .container { max-width: 560px; margin: 0 auto; padding: 20px 16px; }
+
+  /* CARD */
+  .card {
+    background: white;
+    border-radius: 16px;
+    padding: 22px 18px;
+    margin-bottom: 14px;
+    box-shadow: 0 2px 12px rgba(15,76,53,0.06);
+    border: 1px solid var(--gray-light);
+  }
+  .card-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--navy);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .card-icon {
+    width: 32px; height: 32px;
+    background: var(--mint);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+  }
+
+  /* FIELDS */
+  .field-group { margin-bottom: 14px; }
+  .field-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--navy);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
+  }
+  input[type=number], select {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1.5px solid var(--gray-light);
+    border-radius: 10px;
+    font-family: 'Inter', sans-serif;
+    font-size: 15px;
+    color: var(--navy);
+    background: white;
+    -webkit-appearance: none;
+    transition: border-color 0.2s;
+  }
+  input:focus, select:focus { outline: none; border-color: var(--green); }
+  .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+  /* TOGGLE SEXO */
+  .toggle-group { display: flex; gap: 8px; }
+  .toggle-btn {
+    flex: 1;
+    padding: 11px;
+    border: 1.5px solid var(--gray-light);
+    border-radius: 10px;
+    background: white;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--gray);
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+  }
+  .toggle-btn.active { background: var(--green); color: white; border-color: var(--green); font-weight: 600; }
+
+  /* SLIDER */
+  .slider-wrap { position: relative; padding-bottom: 4px; }
+  input[type=range] {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 6px;
+    border-radius: 6px;
+    background: var(--gray-light);
+    outline: none;
+    border: none;
+    padding: 0;
+  }
+  input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    background: var(--green);
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(22,163,74,0.4);
+  }
+  .slider-val {
+    text-align: center;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--green);
+    margin-bottom: 8px;
+  }
+  .slider-val span { font-size: 13px; font-weight: 400; color: var(--gray); }
+
+  /* BTN */
+  .btn-calc {
+    width: 100%;
+    padding: 16px;
+    border: none;
+    border-radius: 14px;
+    background: linear-gradient(135deg, var(--green-dark), var(--green));
+    color: white;
+    font-family: 'Inter', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 4px;
+    transition: all 0.2s;
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+  }
+  .btn-calc:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(22,163,74,0.35); }
+
+  /* RESULTADO IMC */
+  .imc-result { display: none; }
+  .imc-result.show { display: block; }
+
+  .imc-number-card {
+    background: linear-gradient(135deg, var(--green-dark), var(--green));
+    border-radius: 16px;
+    padding: 28px 20px;
+    text-align: center;
+    color: white;
+    margin-bottom: 14px;
+  }
+  .imc-number { font-family: 'Sora', sans-serif; font-size: 64px; font-weight: 800; line-height: 1; }
+  .imc-label { font-size: 18px; font-weight: 600; margin: 8px 0 4px; }
+  .imc-sub { font-size: 13px; color: rgba(255,255,255,0.75); }
+
+  /* BARRA IMC */
+  .imc-bar-wrap { margin: 16px 0 8px; }
+  .imc-bar {
+    height: 12px;
+    border-radius: 6px;
+    background: linear-gradient(90deg, #3B82F6 0%, #22C55E 25%, #EAB308 50%, #EA580C 75%, #DC2626 100%);
+    position: relative;
+    margin-bottom: 6px;
+  }
+  .imc-marker {
+    position: absolute;
+    top: -4px;
+    width: 20px; height: 20px;
+    background: white;
+    border: 3px solid var(--navy);
+    border-radius: 50%;
+    transform: translateX(-50%);
+    transition: left 0.8s ease;
+  }
+  .imc-bar-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 10px;
+    color: var(--gray);
+  }
+
+  /* MÉTRICAS */
+  .metrics-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+  .metric-card {
+    background: var(--cream);
+    border-radius: 12px;
+    padding: 14px;
+    border: 1px solid var(--gray-light);
+    text-align: center;
+  }
+  .metric-val { font-size: 22px; font-weight: 700; color: var(--green-dark); }
+  .metric-label { font-size: 11px; color: var(--gray); margin-top: 2px; }
+
+  /* PLANO */
+  .plan-section { display: none; }
+  .plan-section.show { display: block; }
+
+  .meal-card {
+    background: white;
+    border-radius: 14px;
+    border: 1px solid var(--gray-light);
+    margin-bottom: 12px;
+    overflow: hidden;
+  }
+  .meal-header {
+    background: var(--mint);
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .meal-time { font-size: 13px; font-weight: 700; color: var(--green-dark); }
+  .meal-kcal { font-size: 11px; color: var(--green); margin-left: auto; font-weight: 600; }
+  .meal-body { padding: 14px 16px; }
+  .food-item { font-size: 13px; color: var(--navy); padding: 6px 0; border-bottom: 1px solid var(--gray-light); display: flex; justify-content: space-between; align-items: center; }
+  .food-item:last-child { border-bottom: none; }
+  .food-qty { font-size: 12px; color: var(--gray); }
+
+  /* MACROS */
+  .macro-bar-wrap { margin-bottom: 8px; }
+  .macro-label-row { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 4px; }
+  .macro-track { background: var(--gray-light); border-radius: 6px; height: 8px; }
+  .macro-fill { height: 8px; border-radius: 6px; transition: width 1s ease; }
+
+  /* DICA */
+  .dica {
+    background: var(--mint);
+    border-left: 3px solid var(--green);
+    border-radius: 0 8px 8px 0;
+    padding: 10px 14px;
+    font-size: 12px;
+    color: var(--green-dark);
+    margin-bottom: 12px;
+    line-height: 1.5;
+  }
+
+  /* TABS CONTENT */
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  /* TOAST */
+  .toast {
+    position: fixed; bottom: 20px; left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: var(--navy); color: white;
+    padding: 12px 20px; border-radius: 12px;
+    font-size: 13px; transition: transform 0.3s;
+    z-index: 300; white-space: nowrap;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  /* RESET BTN */
+  .btn-reset {
+    width: 100%; padding: 13px; border: 1.5px solid var(--gray-light);
+    border-radius: 12px; background: white; color: var(--navy);
+    font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 600;
+    cursor: pointer; margin-top: 10px;
+  }
+
+  .section-divider {
+    font-size: 11px; font-weight: 700; letter-spacing: 1.5px;
+    text-transform: uppercase; color: var(--gray);
+    margin: 20px 0 12px;
+  }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="badge">🌿 Saúde & Bem-estar</div>
+  <h1>IMC + <span>Plano Alimentar</span><br>Personalizado Pro</h1>
+  <p>Calcule seu IMC, TMB e receba um plano alimentar adaptado ao seu objetivo.</p>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="switchTab('calcular')">📊 Calcular</div>
+  <div class="tab" onclick="switchTab('resultado')">📈 Resultado</div>
+  <div class="tab" onclick="switchTab('plano')">🥗 Plano</div>
+</div>
+
+<div class="container">
+
+  <!-- TAB: CALCULAR -->
+  <div class="tab-content active" id="tab-calcular">
+
+    <div class="card">
+      <div class="card-title"><div class="card-icon">👤</div> Seus Dados</div>
+
+      <div class="field-group">
+        <div class="field-label">Sexo</div>
+        <div class="toggle-group">
+          <button class="toggle-btn active" id="btn-m" onclick="setSexo('M')">♂ Masculino</button>
+          <button class="toggle-btn" id="btn-f" onclick="setSexo('F')">♀ Feminino</button>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label">Idade</div>
+        <div class="slider-val" id="idade-val">30 <span>anos</span></div>
+        <input type="range" min="15" max="80" value="30" id="slider-idade" oninput="document.getElementById('idade-val').innerHTML=this.value+' <span>anos</span>'">
+      </div>
+
+      <div class="field-row">
+        <div class="field-group">
+          <div class="field-label">Peso (kg)</div>
+          <input type="number" id="peso" placeholder="75" min="30" max="300">
+        </div>
+        <div class="field-group">
+          <div class="field-label">Altura (cm)</div>
+          <input type="number" id="altura" placeholder="175" min="100" max="250">
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label">Nível de Atividade</div>
+        <select id="atividade">
+          <option value="1.2">Sedentário (sem exercício)</option>
+          <option value="1.375">Levemente ativo (1-3x/semana)</option>
+          <option value="1.55" selected>Moderadamente ativo (3-5x)</option>
+          <option value="1.725">Muito ativo (6-7x/semana)</option>
+          <option value="1.9">Extremamente ativo (atleta)</option>
+        </select>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label">Objetivo Principal</div>
+        <select id="objetivo">
+          <option value="perda">🔥 Perda de Peso / Gordura</option>
+          <option value="manutencao">⚖️ Manutenção do Peso</option>
+          <option value="ganho">💪 Ganho de Massa Muscular</option>
+        </select>
+      </div>
+    </div>
+
+    <button class="btn-calc" onclick="calcular()">📊 Calcular e Gerar Plano</button>
+  </div>
+
+  <!-- TAB: RESULTADO -->
+  <div class="tab-content" id="tab-resultado">
+
+    <div class="imc-result" id="imc-result">
+
+      <div class="imc-number-card">
+        <div class="imc-number" id="res-imc">—</div>
+        <div class="imc-label" id="res-classificacao">—</div>
+        <div class="imc-sub" id="res-detalhe">Preencha seus dados para calcular</div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><div class="card-icon">📊</div> Escala IMC</div>
+        <div class="imc-bar-wrap">
+          <div class="imc-bar">
+            <div class="imc-marker" id="imc-marker" style="left:0%"></div>
+          </div>
+          <div class="imc-bar-labels">
+            <span>Abaixo<br>peso</span>
+            <span>Normal</span>
+            <span>Sobrepeso</span>
+            <span>Obesidade</span>
+            <span>Grave</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="metrics-grid">
+        <div class="metric-card">
+          <div class="metric-val" id="res-tmb">—</div>
+          <div class="metric-label">TMB (kcal/dia)</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-val" id="res-tdee">—</div>
+          <div class="metric-label">Gasto Total (kcal)</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-val" id="res-meta">—</div>
+          <div class="metric-label">Meta Calórica</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-val" id="res-peso-ideal">—</div>
+          <div class="metric-label">Peso Ideal (kg)</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><div class="card-icon">🥩</div> Distribuição de Macros</div>
+        <div class="macro-bar-wrap">
+          <div class="macro-label-row"><span>🍗 Proteínas</span><span id="macro-prot">—</span></div>
+          <div class="macro-track"><div class="macro-fill" id="mf-prot" style="width:0%;background:#22C55E"></div></div>
+        </div>
+        <div class="macro-bar-wrap">
+          <div class="macro-label-row"><span>🍚 Carboidratos</span><span id="macro-carb">—</span></div>
+          <div class="macro-track"><div class="macro-fill" id="mf-carb" style="width:0%;background:#EAB308"></div></div>
+        </div>
+        <div class="macro-bar-wrap">
+          <div class="macro-label-row"><span>🥑 Gorduras</span><span id="macro-gord">—</span></div>
+          <div class="macro-track"><div class="macro-fill" id="mf-gord" style="width:0%;background:#EA580C"></div></div>
+        </div>
+      </div>
+
+      <button class="btn-calc" onclick="switchTab('plano')">🥗 Ver Plano Alimentar ›</button>
+      <button class="btn-reset" onclick="switchTab('calcular')">← Recalcular</button>
+    </div>
+
+    <div id="no-result" style="text-align:center;padding:60px 20px;color:var(--gray);">
+      <div style="font-size:48px;margin-bottom:12px;">📊</div>
+      <p>Preencha seus dados na aba <strong>Calcular</strong> para ver os resultados.</p>
+    </div>
+
+  </div>
+
+  <!-- TAB: PLANO -->
+  <div class="tab-content" id="tab-plano">
+
+    <div class="plan-section" id="plan-section">
+      <div class="dica" id="plan-intro"></div>
+      <div id="meals-container"></div>
+
+      <div class="card" style="margin-top:4px;">
+        <div class="card-title"><div class="card-icon">💧</div> Hidratação Diária</div>
+        <p style="font-size:22px;font-weight:700;color:var(--green-dark);margin-bottom:4px;" id="agua-meta">—</p>
+        <p style="font-size:13px;color:var(--gray);">Distribua ao longo do dia. Aumente em dias de treino.</p>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><div class="card-icon">✅</div> Dicas para o Sucesso</div>
+        <div style="display:flex;flex-direction:column;gap:8px;" id="dicas-list"></div>
+      </div>
+
+      <button class="btn-reset" onclick="switchTab('calcular')">← Recalcular</button>
+    </div>
+
+    <div id="no-plan" style="text-align:center;padding:60px 20px;color:var(--gray);">
+      <div style="font-size:48px;margin-bottom:12px;">🥗</div>
+      <p>Calcule seus dados primeiro para receber o plano alimentar personalizado.</p>
+    </div>
+
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+let sexo = 'M';
+let dados = null;
+
+function setSexo(s) {
+  sexo = s;
+  document.getElementById('btn-m').classList.toggle('active', s === 'M');
+  document.getElementById('btn-f').classList.toggle('active', s === 'F');
+}
+
+function switchTab(t) {
+  document.querySelectorAll('.tab').forEach((el,i) => {
+    el.classList.toggle('active', ['calcular','resultado','plano'][i] === t);
+  });
+  document.querySelectorAll('.tab-content').forEach((el,i) => {
+    el.classList.toggle('active', ['tab-calcular','tab-resultado','tab-plano'][i] === 'tab-'+t);
+  });
+}
+
+function calcular() {
+  const peso = parseFloat(document.getElementById('peso').value);
+  const altura = parseFloat(document.getElementById('altura').value);
+  const idade = parseInt(document.getElementById('slider-idade').value);
+  const ativ = parseFloat(document.getElementById('atividade').value);
+  const obj = document.getElementById('objetivo').value;
+
+  if (!peso || !altura || peso < 30 || altura < 100) {
+    showToast('⚠️ Preencha peso e altura corretamente!'); return;
+  }
+
+  const altM = altura / 100;
+  const imc = peso / (altM * altM);
+
+  // TMB Harris-Benedict
+  let tmb;
+  if (sexo === 'M') tmb = 88.362 + (13.397 * peso) + (4.799 * altura) - (5.677 * idade);
+  else tmb = 447.593 + (9.247 * peso) + (3.098 * altura) - (4.330 * idade);
+
+  const tdee = Math.round(tmb * ativ);
+  let meta;
+  if (obj === 'perda') meta = Math.round(tdee - 500);
+  else if (obj === 'ganho') meta = Math.round(tdee + 400);
+  else meta = tdee;
+
+  // Peso ideal (Lorentz)
+  const pesoIdeal = sexo === 'M'
+    ? Math.round(altura - 100 - (altura - 150) / 4)
+    : Math.round(altura - 100 - (altura - 150) / 2.5);
+
+  // Classificação IMC
+  let classif, detalhe, cor, markerPct;
+  if (imc < 18.5) { classif = 'Abaixo do Peso'; detalhe = 'Atenção à nutrição e ganho de massa saudável'; cor = '#3B82F6'; markerPct = 5; }
+  else if (imc < 25) { classif = 'Peso Normal ✓'; detalhe = 'Parabéns! Mantenha hábitos saudáveis'; cor = '#22C55E'; markerPct = 25; }
+  else if (imc < 30) { classif = 'Sobrepeso'; detalhe = 'Recomendado ajuste alimentar e atividade física'; cor = '#EAB308'; markerPct = 55; }
+  else if (imc < 35) { classif = 'Obesidade Grau I'; detalhe = 'Busque acompanhamento profissional'; cor = '#EA580C'; markerPct = 75; }
+  else { classif = 'Obesidade Grau II/III'; detalhe = 'Consulte um médico ou nutricionista'; cor = '#DC2626'; markerPct = 92; }
+
+  // Macros
+  let protPct, carbPct, gordPct;
+  if (obj === 'perda') { protPct = 35; carbPct = 40; gordPct = 25; }
+  else if (obj === 'ganho') { protPct = 30; carbPct = 50; gordPct = 20; }
+  else { protPct = 25; carbPct = 50; gordPct = 25; }
+
+  const protKcal = Math.round(meta * protPct / 100);
+  const carbKcal = Math.round(meta * carbPct / 100);
+  const gordKcal = Math.round(meta * gordPct / 100);
+  const protG = Math.round(protKcal / 4);
+  const carbG = Math.round(carbKcal / 4);
+  const gordG = Math.round(gordKcal / 9);
+
+  // Salvar dados
+  dados = { peso, altura, idade, imc, tmb: Math.round(tmb), tdee, meta, pesoIdeal, classif, detalhe, cor, markerPct, protG, carbG, gordG, protPct, carbPct, gordPct, obj, sexo };
+
+  // Preencher resultado
+  document.getElementById('res-imc').textContent = imc.toFixed(1);
+  document.getElementById('res-classificacao').textContent = classif;
+  document.getElementById('res-detalhe').textContent = detalhe;
+  document.getElementById('res-tmb').textContent = Math.round(tmb);
+  document.getElementById('res-tdee').textContent = tdee;
+  document.getElementById('res-meta').textContent = meta + ' kcal';
+  document.getElementById('res-peso-ideal').textContent = pesoIdeal + ' kg';
+
+  setTimeout(() => {
+    document.getElementById('imc-marker').style.left = markerPct + '%';
+    document.getElementById('mf-prot').style.width = protPct + '%';
+    document.getElementById('mf-carb').style.width = carbPct + '%';
+    document.getElementById('mf-gord').style.width = gordPct + '%';
+  }, 200);
+
+  document.getElementById('macro-prot').textContent = protG + 'g (' + protPct + '%)';
+  document.getElementById('macro-carb').textContent = carbG + 'g (' + carbPct + '%)';
+  document.getElementById('macro-gord').textContent = gordG + 'g (' + gordPct + '%)';
+
+  document.getElementById('imc-result').classList.add('show');
+  document.getElementById('no-result').style.display = 'none';
+
+  // Gerar plano
+  gerarPlano();
+
+  switchTab('resultado');
+  showToast('✅ IMC calculado! Veja seus resultados.');
+}
+
+function gerarPlano() {
+  if (!dados) return;
+  const { meta, obj, protG, carbG, gordG, peso } = dados;
+  const agua = (peso * 0.035).toFixed(1);
+
+  const intros = {
+    perda: `Meta de ${meta} kcal/dia para perda de peso gradual (~0,5kg/semana). Foco em proteínas para preservar massa muscular.`,
+    manutencao: `Meta de ${meta} kcal/dia para manutenção do peso atual com saúde e disposição.`,
+    ganho: `Meta de ${meta} kcal/dia para ganho de massa muscular. Distribua bem as proteínas ao longo do dia.`
+  };
+
+  document.getElementById('plan-intro').textContent = '🎯 ' + intros[obj];
+  document.getElementById('agua-meta').textContent = agua + ' litros/dia (~' + Math.round(agua * 1000 / 250) + ' copos)';
+
+  const refeicoes = getRefeicoes(meta, obj);
+  const container = document.getElementById('meals-container');
+  container.innerHTML = '';
+
+  refeicoes.forEach(r => {
+    const div = document.createElement('div');
+    div.className = 'meal-card';
+    let itemsHtml = r.itens.map(i => `
+      <div class="food-item">
+        <span>${i.nome}</span>
+        <span class="food-qty">${i.qty}</span>
+      </div>`).join('');
+
+    div.innerHTML = `
+      <div class="meal-header">
+        <span>${r.icon}</span>
+        <span class="meal-time">${r.nome} · ${r.hora}</span>
+        <span class="meal-kcal">~${r.kcal} kcal</span>
+      </div>
+      <div class="meal-body">${itemsHtml}</div>`;
+    container.appendChild(div);
+  });
+
+  const dicas = getDicas(obj);
+  const dicasList = document.getElementById('dicas-list');
+  dicasList.innerHTML = dicas.map(d => `<div class="dica">${d}</div>`).join('');
+
+  document.getElementById('plan-section').classList.add('show');
+  document.getElementById('no-plan').style.display = 'none';
+}
+
+function getRefeicoes(meta, obj) {
+  // Distribuição calórica por refeição
+  const dist = obj === 'perda'
+    ? [0.20, 0.10, 0.30, 0.10, 0.25, 0.05]
+    : [0.20, 0.12, 0.28, 0.10, 0.25, 0.05];
+
+  const kcals = dist.map(d => Math.round(meta * d));
+
+  const plans = {
+    perda: [
+      { nome: 'Café da Manhã', hora: '07:00', icon: '🌅', kcal: kcals[0], itens: [
+        {nome:'Ovos mexidos', qty:'2 unidades'},{nome:'Pão integral', qty:'1 fatia'},{nome:'Mamão', qty:'1 fatia média'},{nome:'Café sem açúcar', qty:'1 xícara'}
+      ]},
+      { nome: 'Lanche da Manhã', hora: '10:00', icon: '🍎', kcal: kcals[1], itens: [
+        {nome:'Iogurte natural desnatado', qty:'1 pote (170g)'},{nome:'Castanhas do Pará', qty:'3 unidades'}
+      ]},
+      { nome: 'Almoço', hora: '12:30', icon: '🍽️', kcal: kcals[2], itens: [
+        {nome:'Frango grelhado', qty:'150g'},{nome:'Arroz integral', qty:'4 col. sopa'},{nome:'Feijão', qty:'2 col. sopa'},{nome:'Salada folhas verdes', qty:'À vontade'},{nome:'Azeite', qty:'1 col. chá'}
+      ]},
+      { nome: 'Lanche da Tarde', hora: '15:30', icon: '🥜', kcal: kcals[3], itens: [
+        {nome:'Banana', qty:'1 média'},{nome:'Amendoim sem sal', qty:'1 col. sopa'}
+      ]},
+      { nome: 'Jantar', hora: '19:00', icon: '🌙', kcal: kcals[4], itens: [
+        {nome:'Peixe assado ou atum', qty:'130g'},{nome:'Batata-doce', qty:'1 média'},{nome:'Brócolis cozido', qty:'½ prato'},{nome:'Limão e ervas', qty:'A gosto'}
+      ]},
+      { nome: 'Ceia', hora: '21:30', icon: '🥛', kcal: kcals[5], itens: [
+        {nome:'Leite desnatado ou chá', qty:'1 xícara'}
+      ]}
+    ],
+    manutencao: [
+      { nome: 'Café da Manhã', hora: '07:00', icon: '🌅', kcal: kcals[0], itens: [
+        {nome:'Tapioca com frango desfiado', qty:'2 unidades'},{nome:'Suco de laranja natural', qty:'1 copo'},{nome:'Café com leite', qty:'1 xícara'}
+      ]},
+      { nome: 'Lanche da Manhã', hora: '10:00', icon: '🍎', kcal: kcals[1], itens: [
+        {nome:'Fruta da estação', qty:'1 unidade'},{nome:'Queijo cottage', qty:'2 col. sopa'}
+      ]},
+      { nome: 'Almoço', hora: '12:30', icon: '🍽️', kcal: kcals[2], itens: [
+        {nome:'Carne vermelha magra', qty:'120g'},{nome:'Arroz branco', qty:'5 col. sopa'},{nome:'Feijão ou lentilha', qty:'3 col. sopa'},{nome:'Legumes refogados', qty:'½ prato'},{nome:'Azeite', qty:'1 col. sobremesa'}
+      ]},
+      { nome: 'Lanche da Tarde', hora: '15:30', icon: '🥜', kcal: kcals[3], itens: [
+        {nome:'Vitamina de banana com leite', qty:'1 copo'},{nome:'Bolacha integral', qty:'4 unidades'}
+      ]},
+      { nome: 'Jantar', hora: '19:00', icon: '🌙', kcal: kcals[4], itens: [
+        {nome:'Omelete com legumes', qty:'3 ovos'},{nome:'Pão integral', qty:'2 fatias'},{nome:'Salada de tomate', qty:'À vontade'}
+      ]},
+      { nome: 'Ceia', hora: '21:30', icon: '🥛', kcal: kcals[5], itens: [
+        {nome:'Iogurte natural', qty:'1 pote'}
+      ]}
+    ],
+    ganho: [
+      { nome: 'Café da Manhã', hora: '07:00', icon: '🌅', kcal: kcals[0], itens: [
+        {nome:'Ovos mexidos', qty:'3 unidades'},{nome:'Pão integral', qty:'2 fatias'},{nome:'Manteiga de amendoim', qty:'1 col. sopa'},{nome:'Banana', qty:'1 média'},{nome:'Leite integral', qty:'1 copo'}
+      ]},
+      { nome: 'Lanche da Manhã', hora: '10:00', icon: '🍎', kcal: kcals[1], itens: [
+        {nome:'Iogurte grego', qty:'1 pote'},{nome:'Granola', qty:'3 col. sopa'},{nome:'Mix de frutas secas', qty:'1 col. sopa'}
+      ]},
+      { nome: 'Almoço', hora: '12:30', icon: '🍽️', kcal: kcals[2], itens: [
+        {nome:'Frango ou carne vermelha', qty:'180g'},{nome:'Arroz integral', qty:'6 col. sopa'},{nome:'Feijão', qty:'3 col. sopa'},{nome:'Azeite', qty:'1 col. sobremesa'},{nome:'Salada variada', qty:'À vontade'}
+      ]},
+      { nome: 'Pré-Treino', hora: '15:30', icon: '💪', kcal: kcals[3], itens: [
+        {nome:'Banana com mel', qty:'1 unidade + 1 col.'},{nome:'Torrada integral', qty:'2 unidades'}
+      ]},
+      { nome: 'Jantar', hora: '19:30', icon: '🌙', kcal: kcals[4], itens: [
+        {nome:'Salmão ou atum', qty:'150g'},{nome:'Macarrão integral', qty:'5 col. sopa'},{nome:'Azeite e alho', qty:'A gosto'},{nome:'Brócolis', qty:'½ prato'}
+      ]},
+      { nome: 'Ceia', hora: '22:00', icon: '🥛', kcal: kcals[5], itens: [
+        {nome:'Leite integral', qty:'1 copo'},{nome:'Aveia em flocos', qty:'2 col. sopa'}
+      ]}
+    ]
+  };
+
+  return plans[obj];
+}
+
+function getDicas(obj) {
+  const comuns = [
+    '💧 Beba água 20-30 min antes de cada refeição para melhorar a saciedade.',
+    '🕐 Tente manter horários fixos para as refeições — ajuda o metabolismo.',
+    '📱 Fotografe suas refeições por 7 dias para ter consciência do que come.'
+  ];
+  const extras = {
+    perda: ['🚫 Evite alimentos ultraprocessados, refrigerantes e frituras.','⚡ Inclua 30 min de caminhada diária para potencializar os resultados.'],
+    manutencao: ['✅ Regra 80/20: coma bem 80% do tempo, permita-se 20%.','🥦 Tente incluir ao menos 5 porções de vegetais e frutas por dia.'],
+    ganho: ['💪 Consuma proteína em até 30 min após o treino.','😴 O músculo cresce no descanso — durma 7-8 horas por noite.']
+  };
+  return [...comuns, ...extras[obj]];
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+</script>
+</body>
+</html>
